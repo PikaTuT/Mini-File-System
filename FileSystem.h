@@ -21,10 +21,8 @@ public:
 
     // helpers
     void loadFromFile(string filename);
-    Folder* findFolder(string path);
-    bool isDuplicateFolder(string name);
-    bool isDuplicateFile(string name);
     string getCurrentPath();
+    bool recursiveSearch(Folder* node, string target, string& foundPath, string currentPath);
 
     // menu operations
     void createFolder();

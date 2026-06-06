@@ -15,7 +15,7 @@ void Folder::renameFile(){
      for(File fl : files){
           cout << endl;
           cout << ++index << ".\t";
-          cout << fl.getFile();
+          cout << fl.getFileFullName();
           cout << endl;
      }
     
@@ -38,14 +38,14 @@ void Folder::renameFile(){
      //access the file object
      //use setFileName() & setFileExt()
      cout << endl;
-     cout << "Please rename your file: (original file name: " + files[index].getFile() + ")";
+     cout << "Please rename your file: (original file name: " + files[index].getFileFullName() + ")";
      cout << endl;
      getline(cin,name,'.'); getline(cin,ext);
      files[index].setFileName(name);
      files[index].setFileExt(ext);
 
      cout << endl;
-     cout << "Congratulations, file successfully renamed to " + files[index].getFile();
+     cout << "Congratulations, file successfully renamed to " + files[index].getFileFullName();
      cout << endl;
 }
 
@@ -79,19 +79,27 @@ void Folder::renameSubFolder(){
 }
 
 void Folder::folderTraversal(string prefix, bool isLast)const{
-     for(int sub = 0; sub < subfolders.size(); sub++){
-          isLast = (sub == subfolders.size() - 1 && files.empty())? true : false;
-          cout << prefix << ((isLast)? "└── " : "├── ")
-               << subfolders[sub]->name << endl;
-          string newPrefix = prefix + ((isLast)? "    " : "│   ");
-          subfolders[sub]->folderTraversal(newPrefix, isLast);
-     }
-     
-     for(int f = 0; f < files.size(); f++){
-          cout << prefix;
-          cout << ((f != files.size() - 1)? "├── ": "└── ");
-          cout << files[f].getFile() << endl;
-     }
+    
+    //Display subfolder
+    //Prefix is the line to connect all of the parent of parents
+    
+    for(int sub = 0; sub < (int)subfolders.size(); sub++){
+
+        isLast = (sub == (int)subfolders.size() - 1 && files.empty()) ? true : false;
+
+        cout << prefix << ((isLast) ? "└── " : "├── ")
+             << subfolders[sub]->name << endl;
+
+        string newPrefix = prefix + ((isLast) ? "    " : "│   ");
+        subfolders[sub]->folderTraversal(newPrefix, isLast);
+    }
+    
+    //Display files
+    for(int f = 0; f < (int)files.size(); f++){
+        cout << prefix;
+        cout << ((f != (int)files.size() - 1) ? "├── " : "└── ");
+        cout << files[f].getFileFullName() << endl;
+    }
 }
 
 Folder* Folder::folderSearch(string folderName, int index){
@@ -113,7 +121,7 @@ Folder* Folder::folderSearch(string folderName, int index){
 
 void Folder::deleteFile(string fileName, int index){
     if(index >= 0 && index < (int)files.size()){
-        if(fileName == files[index].getFile()){
+        if(fileName == files[index].getFileFullName()){
             files.erase(files.begin() + index);
         }else{
             deleteFile(fileName, index + 1);

@@ -14,7 +14,7 @@ private:
     std::vector<Folder*> subfolders;
 
 public:
-    Folder(std::string n, Folder* f_ptr = nullptr): name(n), parent(f_ptr){}
+    Folder(std::string n, Folder* f_ptr): name(n), parent(f_ptr){}
 
     ~Folder(){ 
         for(Folder* sub : subfolders){
@@ -24,8 +24,6 @@ public:
     
     void setFolderName(std::string n){name = n;}
     std::string getFolderName()const{return name;}
-
-    Folder* getParent(){return parent;}
 
     //manage file
     void renameFile();
@@ -53,6 +51,8 @@ public:
     int getSubfolderCount() const { return subfolders.size(); }
 
     Folder* getSubfolder(int i)       { return subfolders[i]; }
+
+    Folder* getParent(){return parent;}
 
     int getFileCount()  const { return files.size(); }
     

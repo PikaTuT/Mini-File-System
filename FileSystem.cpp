@@ -220,6 +220,25 @@ string FileSystem::getCurrentPath(){
     return path;   // returns "Root/Courses/OOP"
 }
 
+bool FileSystem::recursiveSearch(Folder* node, string target, string& foundPath, string currentPath){
+    // check all files in current node
+    for(int i = 0; i < (int)node->getFileCount(); i++){
+        if(node->getFile(i).getFileFullName() == target){
+            foundPath = currentPath + "/" + target;  // save the full path
+            return true;                              // found, stop searching
+        }
+    }
+
+    // not found in this folder, recurse into each subfolder
+    for(int i = 0; i < (int)node->getSubfolderCount(); i++){
+        Folder* sub = node->getSubfolder(i);
+        bool found = recursiveSearch(sub, target, foundPath, currentPath + "/" + sub->getFolderName());
+        if(found) return true;   // bubble the result back up
+    }
+
+    return false;   // not found in this branch
+}
+
 void FileSystem::createFolder(){
 
     string name;
@@ -272,6 +291,93 @@ void FileSystem::createFile(){
         // passed both checks, safe to create
         current->addFile(name,ext);
         cout << "\nFile '" << name + "." + ext << "' created successfully.\n";
+
+    } catch(runtime_error& e){
+        cout << "\nError: " << e.what() << "\n";
+    }
+}
+
+void FileSystem::displayCurrentFolder(){
+
+    cout<<  "______________________________________________";
+    cout << "Current Folder: " << current->getFolderName() << endl;
+    cout << "Current Path  : " << getCurrentPath() << endl;
+    cout << "_______________________________________________" << endl;
+
+    if(current->getSubfolderCount() == 0 && current->getFileCount() == 0){
+        cout << "(empty)" << endl;
+        return;
+    }
+
+    for(int i = 0; i < (int)current->getSubfolderCount(); i++){
+        cout << "[FOLDER]: " << current->getSubfolder(i)->getFolderName() << endl;
+    }
+
+    for(int i = 0; i < (int)current->getFileCount(); i++){
+        cout << "[FILE]: " << current->getFile(i).getFileFullName() << endl;
+    }
+}
+
+void FileSystem::displayFullTree(){
+    cout << "\n" << root->getFolderName() << endl;
+    root->folderTraversal();
+}
+
+void FileSystem::searchFile(){
+    string target;
+    cout << "\nEnter file name to search (e.g. notes.pdf): ";
+    getline(cin, target);
+
+    try {
+        if(target.empty())
+            throw runtime_error("File name cannot be empty.");
+
+        string foundPath = "";
+        bool found = recursiveSearch(root, target, foundPath, root->getFolderName());
+
+        if(!found)
+            throw runtime_error("File '" + target + "' not found in the filesystem.");
+
+        cout << "\nFile found at: " << foundPath << "\n";
+
+    } catch(runtime_error& e){
+        cout << "\nError: " << e.what() << "\n";
+    }
+}
+
+void FileSystem::enterFolder(){
+
+    string name;
+    cout << "\nEnter folder name to enter: ";
+    getline(cin, name);
+
+    try {
+        if(name.empty())
+            throw runtime_error("Folder name cannot be empty.");
+
+        for(int i = 0; i < (int)current->getSubfolderCount(); i++){
+            if(current->getSubfolder(i)->getFolderName() == name){
+                current = current->getSubfolder(i);  // move into folder
+                cout << "\nEntered folder: " << name << "\n";
+                return;  // exit function after entering
+            }
+        }
+
+        // if loop finishes without finding, throw
+        throw runtime_error("Folder '" + name + "' does not exist in '" + current->getFolderName() + "'.");
+
+    } catch(runtime_error& e){
+        cout << "\nError: " << e.what() << "\n";
+    }
+}
+
+void FileSystem::goBack(){
+    try {
+        if(current->getParent() == nullptr)
+            throw runtime_error("Already at Root. Cannot go further back.");
+
+        current = current->getParent();
+        cout << "\nMoved back to: " << current->getFolderName() << "\n";
 
     } catch(runtime_error& e){
         cout << "\nError: " << e.what() << "\n";
